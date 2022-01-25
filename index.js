@@ -53,15 +53,20 @@ const getProjectInfo = async ({workspace, project}) => {
 // not have to deal with cryptic errors that come out of xcodebuild.
 
 
-const exportArchive = async ({archivePath, exportMethod, exportPath}) => {
+const exportArchive = async ({archivePath, exportMethod, signingStyle, exportPath}) => {
     // Write the exportOptions.plist
 
     const exportOptions = {
         method: exportMethod,
+        signingStyle: signingStyle,
     };
 
     // TODO This should probably be stored in some temporary directory
-    fs.writeFileSync("exportOptions.plist", plist.build(exportOptions));
+    const eoData = plist.build(exportOptions);
+    fs.writeFileSync("exportOptions.plist", eoData);
+    console.log("\n\n==========\n\n")
+    console.log(eoData)
+    console.log("\n\n==========\n\n")
 
     // Execute xcodebuild -exportArchive
 
@@ -88,6 +93,7 @@ const parseConfiguration = async () => {
         archivePath: core.getInput("archive-path"),
         exportPath: core.getInput("export-path", {required: true}),
         exportMethod: core.getInput("export-method", {required: true}), // TODO
+        signingStyle: core.getInput("signing-style", {required: true}),
     };
 
     // If the scheme or archivePath is not provided then we discover it
@@ -117,6 +123,15 @@ const parseConfiguration = async () => {
 
     if (!ValidExportMethods.includes(configuration.exportMethod)) {
         throw Error(`Export method ${configuration.exportMethod} is invalid.`);
+    }
+
+    const ValidSigninStyle = [
+        "manual",
+        "automatic",
+    ];
+
+    if (!ValidSigninStyle.includes(configuration.signingStyle)) {
+        throw Error(`Singin style ${configuration.signingStyle} is invalid.`);
     }
 
     if (!fs.existsSync(configuration.archivePath)) {

@@ -21,6 +21,9 @@ inputs:
   export-method:
     description: "Export method (development, developer-id). Defaults to developer-id."
     default: "developer-id"
+  signing-style:
+    description: "Singing style (manual, automatic). Defaults to automatic."
+    default: "automatic"
   export-path:
     description: "Path where the exported product will be put. Defaults to Export."
     default: "Export"
